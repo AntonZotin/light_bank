@@ -1,0 +1,29 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{login.title}"/>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="grow text-3xl font-medium mb-8 text-center" th:text="#{login.title}"/>
+    <p class="mb-12 text-center" th:text="#{login.headline}"/>
+    <p th:if="${param.error}" class="bg-red-200 border-red-800 text-red-800 text-center w-1/2 mx-auto border rounded p-4 mb-6" role="alert" th:text="#{login.error}"/>
+    <p th:if="${param.logout}" class="bg-blue-200 border-blue-800 text-blue-800 text-center w-1/2 mx-auto border rounded p-4 mb-6" role="alert" th:text="#{login.logout}"/>
+
+    <form class="max-w-sm mx-auto text-center" th:action="@{/login}" method="post">
+        <div class="mb-5">
+            <label for="username" class="block mb-2 text-sm font-medium" th:text="#{username}"/>
+            <input type="text" autofocus id="username" name="username" class="bg-gray-50 text-center border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="username" required />
+        </div>
+        <div class="mb-5">
+            <label for="password" class="block mb-2 text-sm font-medium" th:text="#{password}"/>
+            <input type="password" id="password" name="password" class="bg-gray-50 text-center border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+        </div>
+        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" th:text="#{submit}"/>
+
+        <a th:href="@{/oauth2/authorization/google}" class="block bg-green-500 py-2 px-4 rounded-full hover:bg-green-700 my-5 mx-auto w-1/2" th:text="#{login.google}"/>
+    </form>
+</div>
+</body>
+</html>

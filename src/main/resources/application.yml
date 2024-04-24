@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: light_bank
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:light_bank}?characterEncoding=UTF-8
+    username: ${DATABASE_USER:admin}
+    password: ${DATABASE_PASSWORD:nimda}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  session:
+    jdbc:
+      initialize-schema: always
+  config:
+    import: optional:file:.env[.properties]
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${CLIENT_ID}
+            client-secret: ${CLIENT_SECRET}
+            scope: email,profile

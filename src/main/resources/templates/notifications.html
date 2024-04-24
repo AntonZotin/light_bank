@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{notifications.title}"/>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="grow text-3xl font-medium mb-8 text-center" th:text="#{notifications.title}"/>
+    <p class="mb-12 w-4/5 mx-auto text-center" th:text="#{notifications.headline}"/>
+
+    <h2 th:if="${notifications.isEmpty()}" class="text-2xl font-medium mb-4 text-center" th:text="#{notifications.no.exist}"/>
+    <table th:if="${!notifications.isEmpty()}" class="border-collapse w-full border border-slate-500 bg-slate-800 text-sm shadow-sm">
+        <thead class="bg-slate-700">
+        <tr>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Id</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">User</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Message</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Date</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Read</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="notification : ${notifications}">
+            <td class="border border-slate-700 p-4 text-center" th:text="${notification.getId()}" th:classappend="${notification.isOpened()} ? 'text-slate-600' : 'text-slate-400'"/>
+            <td class="border border-slate-700 p-4 text-center" th:text="${notification.getUsername()}" th:classappend="${notification.isOpened()} ? 'text-slate-600' : 'text-slate-400'"/>
+            <td class="border border-slate-700 p-4 text-center" th:text="${notification.getMessage()}" th:classappend="${notification.isOpened()} ? 'text-slate-600' : 'text-slate-400'"/>
+            <td class="border border-slate-700 p-4 text-center" th:text="${notification.getCreatedAt()}" th:classappend="${notification.isOpened()} ? 'text-slate-600' : 'text-slate-400'"/>
+            <td class="border border-slate-700 p-4 text-center">
+                <a th:if="${!notification.isOpened()}" th:href="@{/readNotification(id=${notification.getId()},page=${param.page})}" class="block bg-gray-500 py-2 px-4 rounded-full hover:bg-gray-700 w-1/2 text-center mx-auto"
+                   th:text="#{notifications.read}"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${!notifications.isEmpty()}" class="mt-5 text-center mx-auto">
+        <div class="flex space-x-3 justify-center items-center max-h-10">
+            <span class="text-2xl font-medium" th:text="#{page}"/>
+            <a th:each="i : ${#numbers.sequence(1, pages)}" href="#" onclick="onChangePage(this.text)" th:text="${i}" class="block py-1 px-3 rounded-full"
+               th:classappend="${i == page + 1} ? 'bg-gray-500 pointer-events-none cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'"/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

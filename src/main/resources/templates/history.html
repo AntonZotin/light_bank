@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{balance.title}"/>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="grow text-3xl font-medium mb-8 text-center" th:text="#{history.title}"/>
+    <p class="mb-12 w-4/5 mx-auto text-center" th:text="#{history.headline}"/>
+
+    <div class="mb-12 text-center mx-auto">
+        <div class="flex space-x-5 justify-center">
+            <h2 class="text-2xl font-medium pt-1.5" th:text="#{filters}"/>
+            <select onchange="onChangePurpose(this.value)" class="block py-2.5 px-5 w-1/5 text-sm text-center text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                <option th:each="p : ${purposes}" th:selected="${purpose == p}"  th:text="${p}" class="text-center"/>
+            </select>
+        </div>
+    </div>
+
+    <h2 th:if="${transactions.isEmpty()}" class="text-2xl font-medium mb-4 text-center" th:text="#{history.no.exist}"/>
+    <table th:if="${!transactions.isEmpty()}" class="border-collapse w-full border border-slate-500 bg-slate-800 text-sm shadow-sm">
+        <thead class="bg-slate-700">
+        <tr>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Id</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Amount</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Purpose</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Date</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Receiver</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Sender</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Undo</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="transaction : ${transactions}">
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${transaction.getId()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${transaction.getAmount()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${transaction.getPurpose()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${transaction.getCreatedAtFormatted()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${transaction.getReceiverUsername()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${transaction.getSenderUsername()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center">
+                <a th:href="@{/balance(undo=${transaction.getId()})}" class="block bg-gray-500 py-2 px-4 rounded-full hover:bg-gray-700 w-1/2 text-center mx-auto"
+                   th:text="#{balance.undo}"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${!transactions.isEmpty()}" class="mt-5 text-center mx-auto">
+        <div class="flex space-x-3 justify-center items-center max-h-10">
+            <span class="text-2xl font-medium" th:text="#{page}"/>
+            <a th:each="i : ${#numbers.sequence(1, pages)}" th:if="${i == 1 or i == pages or page - 5 < i and i < page + 5}" href="#" onclick="onChangePage(this.text)" th:text="${i}" class="block py-1 px-3 rounded-full"
+               th:classappend="${i == page + 1} ? 'bg-gray-500 pointer-events-none cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'"/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

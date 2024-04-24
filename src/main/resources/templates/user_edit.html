@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{users.edit.title}"/>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="grow text-3xl font-medium mb-8 text-center" th:text="#{users.edit.title}"/>
+    <p class="mb-12 w-4/5 mx-auto text-center" th:text="#{users.edit.headline}"/>
+
+    <form class="max-w-md mx-auto" th:action="@{/users/edit}" method="post">
+        <input type="hidden" name="userId" th:value="${user.getId()}"/>
+        <div class="relative z-0 w-full mb-5 group">
+            <input type="text" name="username" id="username" th:value="${user.getUsername()}" class="block py-2.5 px-0 w-full text-sm text-gray-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
+            <label for="username" th:text="#{users.edit.username}" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"/>
+        </div>
+        <div class="relative z-0 w-full mb-5 group">
+            <input type="password" name="password" id="password" class="block py-2.5 px-0 w-full text-sm text-gray-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
+            <label for="password" th:text="#{users.edit.password}" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"/>
+        </div>
+        <div class="relative z-0 w-full mb-5 group">
+            <input type="password" name="confirmPassword" id="confirmPassword" class="block py-2.5 px-0 w-full text-sm text-gray-300 bg-transparent border-0 border-b-2 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-blue-500 focus:outline-none focus:ring-0 focus:border-blue-600 peer" placeholder=" " />
+            <label for="confirmPassword" th:text="#{users.edit.confirm}" class="peer-focus:font-medium absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 rtl:peer-focus:translate-x-1/4 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"/>
+        </div>
+        <div class="flex items-start mb-5">
+            <div class="flex items-center h-5">
+                <input id="isUser" name="isUser" type="checkbox" th:checked="${user.isUser()}" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" />
+            </div>
+            <label for="isUser" th:text="#{users.edit.role.user}" class="ms-2 text-sm font-medium text-gray-500 dark:text-gray-300"/>
+        </div>
+        <div class="flex items-start mb-5">
+            <div class="flex items-center h-5">
+                <input id="isManager" name="isManager" type="checkbox" th:checked="${user.isManager()}" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" />
+            </div>
+            <label for="isManager" th:text="#{users.edit.role.manager}" class="ms-2 text-sm font-medium text-gray-500 dark:text-gray-300"/>
+        </div>
+        <div class="flex items-start mb-5">
+            <div class="flex items-center h-5">
+                <input id="isAdmin" name="isAdmin" type="checkbox" th:checked="${user.isAdmin()}" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" />
+            </div>
+            <label for="isAdmin" th:text="#{users.edit.role.admin}" class="ms-2 text-sm font-medium text-gray-500 dark:text-gray-300"/>
+        </div>
+        <div class="flex items-start mb-5">
+            <div class="flex items-center h-5">
+                <input id="isEnabled" name="isEnabled" type="checkbox" th:checked="${user.isEnabled()}" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800" />
+            </div>
+            <label for="isEnabled" th:text="#{users.edit.enabled}" class="ms-2 text-sm font-medium text-gray-500 dark:text-gray-300"/>
+        </div>
+        <button type="submit" th:text="#{users.edit.save}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"/>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{users.title}"/>
+</head>
+<body>
+<div layout:fragment="content">
+    <h1 class="grow text-3xl font-medium mb-8 text-center" th:text="#{users.title}"/>
+    <p class="mb-12 w-4/5 mx-auto text-center" th:text="#{users.headline}"/>
+
+    <div class="mb-12 text-center mx-auto">
+        <div class="flex space-x-5 justify-center">
+            <h2 class="text-2xl font-medium pt-1.5" th:text="#{filters}"/>
+            <select onchange="onChangeRole(this.value)" class="block py-2.5 px-5 w-1/5 text-sm text-center text-gray-500 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer">
+                <option th:each="r : ${roles}" th:selected="${role == r}" th:text="${r}" class="text-center"/>
+            </select>
+        </div>
+    </div>
+
+    <h2 th:if="${users.isEmpty()}" class="text-2xl font-medium mb-4 text-center" th:text="#{users.no.exist}"/>
+    <table th:if="${!users.isEmpty()}" class="border-collapse w-full border border-slate-500 bg-slate-800 text-sm shadow-sm">
+        <thead class="bg-slate-700">
+        <tr>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Id</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Username</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Roles</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Enabled</th>
+            <th class="border border-slate-600 font-semibold p-4 text-slate-200 text-center">Edit</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${user.getId()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${user.getUsername()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${user.rolesToString()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center" th:text="${user.isEnabled()}"/>
+            <td class="border border-slate-700 p-4 text-slate-400 text-center">
+                <a th:href="@{/users/edit(id=${user.getId()})}" class="block bg-gray-500 py-2 px-4 rounded-full hover:bg-gray-700 w-1/2 text-center mx-auto"
+                   th:text="#{users.edit}"/>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${!users.isEmpty()}" class="mt-5 text-center mx-auto">
+        <div class="flex space-x-3 justify-center items-center max-h-10">
+            <span class="text-2xl font-medium" th:text="#{page}"/>
+            <a th:each="i : ${#numbers.sequence(1, pages)}" href="#" onclick="onChangePage(this.text)" th:text="${i}" class="block py-1 px-3 rounded-full"
+               th:classappend="${i == page + 1} ? 'bg-gray-500 pointer-events-none cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'"/>
+        </div>
+    </div>
+</div>
+</body>
+</html>

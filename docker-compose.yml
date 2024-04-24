@@ -1,0 +1,32 @@
+version: "3.5"
+
+volumes:
+  db_data:
+
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    image: 'app:latest'
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/light_bank
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  db:
+    image: 'postgres:13.1-alpine'
+    restart: always
+    environment:
+      POSTGRES_DB: light_bank
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - 5432

@@ -1,0 +1,15 @@
+{
+  "name": "light_bank",
+  "version": "1.0.0",
+  "description": "light bank web application",
+  "main": "index.js",
+  "scripts": {
+    "css": "npx tailwindcss -i styles/input.css -o ./src/main/resources/static/css/main.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
+  }
+}
