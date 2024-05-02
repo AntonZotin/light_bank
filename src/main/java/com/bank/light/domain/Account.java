@@ -59,4 +59,6 @@ public class Account implements Serializable {
     public int hashCode() {
         return Objects.hash(id, balance, paymentAccount);
     }
+
+    public static final String SELECT_ACCOUNT = "Select account";
 }

@@ -1,7 +1,6 @@
 package com.bank.light.controllers;
 
 import com.bank.light.interfaces.NotificationService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,7 +34,7 @@ public class NotificationController {
     }
 
     @GetMapping("/readNotification")
-    public String readNotification(@RequestParam Map<String,String> params, RedirectAttributes redirectAttributes, HttpServletRequest request) {
+    public String readNotification(@RequestParam Map<String,String> params, RedirectAttributes redirectAttributes) {
         if (params.containsKey("id")) {
             notificationService.readNotification(Long.parseLong(params.get("id")));
         }

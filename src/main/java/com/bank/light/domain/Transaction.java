@@ -115,4 +115,6 @@ public class Transaction implements Serializable, Comparable<Transaction> {
     public static final String DEPOSIT = "Deposit";
     public static final String WITHDRAW = "Withdraw";
     public static final String TRANSFER = "Transfer";
+
+    public static final String SELECT_PURPOSE = "Select purpose";
 }

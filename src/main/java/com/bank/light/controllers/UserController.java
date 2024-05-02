@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -32,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
-import static com.bank.light.utils.Constant.PURPOSE;
+import static com.bank.light.domain.Transaction.SELECT_PURPOSE;
 
 @Controller
 @RequestMapping
@@ -77,7 +76,7 @@ public class UserController {
         model.addAttribute("transactions", transactions);
         model.addAttribute("page", currentPage);
         model.addAttribute("purpose", currentPurpose);
-        model.addAttribute("purposes", List.of(PURPOSE, Transaction.DEPOSIT, Transaction.TRANSFER, Transaction.WITHDRAW));
+        model.addAttribute("purposes", List.of(SELECT_PURPOSE, Transaction.DEPOSIT, Transaction.TRANSFER, Transaction.WITHDRAW));
         return "history";
     }
 

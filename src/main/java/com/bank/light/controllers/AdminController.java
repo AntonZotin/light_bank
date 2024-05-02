@@ -7,13 +7,11 @@ import com.bank.light.exceptions.UserNotFoundException;
 import com.bank.light.interfaces.UserService;
 import com.bank.light.models.UserEditDto;
 import jakarta.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,7 +64,7 @@ public class AdminController {
     }
 
     @PostMapping("/users/edit")
-    public String userEdit(@Valid UserEditDto userEditDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
+    public String userEdit(@Valid UserEditDto userEditDto, RedirectAttributes redirectAttributes) {
         try {
             userService.edit(userEditDto);
             redirectAttributes.addFlashAttribute("MSG_SUCCESS", "User change successfully");

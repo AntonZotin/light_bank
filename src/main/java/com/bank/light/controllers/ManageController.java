@@ -1,5 +1,6 @@
 package com.bank.light.controllers;
 
+import com.bank.light.domain.Account;
 import com.bank.light.domain.Transaction;
 import com.bank.light.interfaces.AccountService;
 import com.bank.light.interfaces.TransactionService;
@@ -8,7 +9,6 @@ import com.bank.light.services.ExcelExporter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,10 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-
-import static com.bank.light.utils.Constant.ACCOUNT;
-import static com.bank.light.utils.Constant.PURPOSE;
 
 @Controller
 @RequestMapping
@@ -53,7 +49,7 @@ public class ManageController {
         if (currentPage >= pages || currentPage < 0) currentPage = 0;
         List<Transaction> transactions = transactionService.findAllByPage(currentPage, currentAccount, currentPurpose);
         List<String> accounts = new ArrayList<>() {{
-            add(ACCOUNT);
+            add(Account.SELECT_ACCOUNT);
             addAll(accountService.listAccountNames());
         }};
         model.addAttribute("transactions", transactions);
@@ -61,7 +57,7 @@ public class ManageController {
         model.addAttribute("account", currentAccount);
         model.addAttribute("purpose", currentPurpose);
         model.addAttribute("accounts", accounts);
-        model.addAttribute("purposes", List.of(PURPOSE, Transaction.DEPOSIT, Transaction.TRANSFER, Transaction.WITHDRAW));
+        model.addAttribute("purposes", List.of(Transaction.SELECT_PURPOSE, Transaction.DEPOSIT, Transaction.TRANSFER, Transaction.WITHDRAW));
         return "manage";
     }
 
