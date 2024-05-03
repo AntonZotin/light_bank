@@ -25,18 +25,18 @@ public class AdminController {
 
     private final UserService userService;
 
-    public AdminController(UserService userService) {
+    public AdminController(final UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping("/users")
     public String usersPage(Model model, @RequestParam Map<String,String> params) {
-        String role = params.getOrDefault("role", null);
-        Long pages = userService.pageCount(role);
+        final String role = params.getOrDefault("role", null);
+        final Long pages = userService.pageCount(role);
         model.addAttribute("pages", pages);
         int page = (params.containsKey("page")) ? Integer.parseInt(params.get("page")) - 1 : 0;
         if (page >= pages || page < 0) page = 0;
-        List<User> list = userService.findAllByPage(page, role);
+        final List<User> list = userService.findAllByPage(page, role);
         model.addAttribute("users", list);
         model.addAttribute("page", page);
         model.addAttribute("role", role);
@@ -46,7 +46,7 @@ public class AdminController {
 
     @GetMapping("/users/edit")
     public String userEditPage(Model model, @RequestParam Map<String,String> params, RedirectAttributes redirectAttributes) {
-        String userId = params.getOrDefault("id", "");
+        final String userId = params.getOrDefault("id", "");
         if (userId.isEmpty() || !isInteger(userId)) {
             redirectAttributes.addFlashAttribute("MSG_ERROR", "Request has incorrect id parameter.");
             return "redirect:/users";

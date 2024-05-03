@@ -1,7 +1,6 @@
 package com.bank.light.models;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
@@ -22,4 +21,16 @@ public class UserEditDto {
     private Boolean isAdmin = false;
 
     private Boolean isEnabled = false;
+
+    public boolean isAdmin() {
+        return this.isAdmin;
+    }
+
+    public boolean isManager() {
+        return this.isManager;
+    }
+
+    public boolean isUser() {
+        return this.isUser;
+    }
 }

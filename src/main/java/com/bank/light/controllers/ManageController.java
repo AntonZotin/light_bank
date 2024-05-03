@@ -29,26 +29,21 @@ public class ManageController {
 
     private final AccountService accountService;
 
-    public ManageController(TransactionService transactionService, AccountService accountService) {
+    public ManageController(final TransactionService transactionService, final AccountService accountService) {
         this.transactionService = transactionService;
         this.accountService = accountService;
     }
 
     @GetMapping("/manage")
-    public String managePage(
-            Model model,
-            @RequestParam("account") Optional<String> account,
-            @RequestParam("purpose") Optional<String> purpose,
-            @RequestParam("page") Optional<Integer> page
-    ) {
-        String currentAccount = account.orElse(null);
-        String currentPurpose = purpose.orElse(null);
-        int currentPage = page.orElse(1) - 1;
-        Long pages = transactionService.pageCount(currentAccount, currentPurpose);
+    public String managePage(Model model, @RequestParam("account") Optional<String> account, @RequestParam("purpose") Optional<String> purpose, @RequestParam("page") Optional<Integer> page) {
+        final String currentAccount = account.orElse(null);
+        final String currentPurpose = purpose.orElse(null);
+        final Long pages = transactionService.pageCount(currentAccount, currentPurpose);
         model.addAttribute("pages", pages);
+        int currentPage = page.orElse(1) - 1;
         if (currentPage >= pages || currentPage < 0) currentPage = 0;
-        List<Transaction> transactions = transactionService.findAllByPage(currentPage, currentAccount, currentPurpose);
-        List<String> accounts = new ArrayList<>() {{
+        final List<Transaction> transactions = transactionService.findAllByPage(currentPage, currentAccount, currentPurpose);
+        final List<String> accounts = new ArrayList<>() {{
             add(Account.SELECT_ACCOUNT);
             addAll(accountService.listAccountNames());
         }};
@@ -63,7 +58,7 @@ public class ManageController {
 
     @PostMapping("/download")
     public @ResponseBody ResponseEntity<byte[]> download(DownloadDto downloadDto) {
-        List<Transaction> transactions = transactionService.findAll(downloadDto.getAccount(), downloadDto.getPurpose());
+        final List<Transaction> transactions = transactionService.findAll(downloadDto.getAccount(), downloadDto.getPurpose());
         Collections.sort(transactions);
         return ExcelExporter.export(transactions);
     }

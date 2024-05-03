@@ -8,7 +8,6 @@ import com.bank.light.models.UserDto;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -28,7 +27,7 @@ public class AuthController {
 
     private final UserService userService;
 
-    public AuthController(GatewayService gatewayService, UserService userService) {
+    public AuthController(final GatewayService gatewayService, final UserService userService) {
         this.gatewayService = gatewayService;
         this.userService = userService;
     }
@@ -36,7 +35,7 @@ public class AuthController {
     @GetMapping
     public String homePage(Model model) {
         try {
-            Map<String, Double> currencies = gatewayService.getCurrencies();
+            final Map<String, Double> currencies = gatewayService.getCurrencies();
             model.addAttribute("usd", currencies.get("usd"));
             model.addAttribute("eur", currencies.get("eur"));
         } catch (GatewayException e) {
@@ -52,17 +51,16 @@ public class AuthController {
 
     @GetMapping("/registration")
     public String registrationPage(Model model) {
-        UserDto userDto = new UserDto();
-        model.addAttribute("user", userDto);
+        model.addAttribute("user", new UserDto());
         return "registration";
     }
 
     @PostMapping("/registration")
     public String registerUser(@Valid UserDto userDto, BindingResult result, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
         if(result.hasErrors()){
-            List<String> errors = result.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
-            model.addAttribute("MSG_ERROR", String.join(", ", errors));
+            String errors = result.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(", "));
+            model.addAttribute("MSG_ERROR", errors);
         } else {
             try {
                 userService.register(userDto);

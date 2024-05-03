@@ -10,7 +10,7 @@ public class DoubleTypeValidator implements ConstraintValidator<DoubleType, Obje
     }
 
     @Override
-    public boolean isValid(Object obj, ConstraintValidatorContext context){
+    public boolean isValid(Object obj, ConstraintValidatorContext context) {
         try {
             Double.parseDouble(obj.toString());
             return true;

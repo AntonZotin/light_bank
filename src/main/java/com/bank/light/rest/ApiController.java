@@ -35,7 +35,7 @@ class ApiController {
 
     private final AccountService accountService;
 
-    ApiController(UserService userService, AccountService accountService) {
+    ApiController(final UserService userService, final AccountService accountService) {
         this.userService = userService;
         this.accountService = accountService;
     }
@@ -54,7 +54,7 @@ class ApiController {
     @PostMapping("/deposit")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<String> deposit(@RequestBody @Valid DepositDto depositDto, HttpServletRequest request) {
-        Account account = userService.getAccountByUsername(request.getUserPrincipal().getName());
+        final Account account = userService.getAccountByUsername(request.getUserPrincipal().getName());
         accountService.deposit(account, Double.parseDouble(depositDto.getAmount()));
         return SUCCESS;
     }
@@ -62,13 +62,13 @@ class ApiController {
     @PostMapping("/transfer")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<String> transfer(@RequestBody @Valid TransferDto transferDto, HttpServletRequest request) {
-        String username = request.getUserPrincipal().getName();
+        final String username = request.getUserPrincipal().getName();
         if (username.equals(transferDto.getUsername())) {
             throw new ApiException("You can't transfer money to yourself.");
         } else {
             try {
-                Account account = userService.getAccountByUsername(username);
-                Account receiver = userService.getAccountByUsername(transferDto.getUsername());
+                final Account account = userService.getAccountByUsername(username);
+                final Account receiver = userService.getAccountByUsername(transferDto.getUsername());
                 accountService.transfer(account, Double.parseDouble(transferDto.getAmount()), receiver);
                 return SUCCESS;
             } catch (InsufficientFundsException | UserNotFoundException e) {
@@ -80,9 +80,9 @@ class ApiController {
     @PostMapping("/withdraw")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<String> withdraw(@RequestBody @Valid DepositDto depositDto, HttpServletRequest request) {
-        String username = request.getUserPrincipal().getName();
+        final String username = request.getUserPrincipal().getName();
         try {
-            Account account = userService.getAccountByUsername(username);
+            final Account account = userService.getAccountByUsername(username);
             accountService.withdraw(account, Double.parseDouble(depositDto.getAmount()));
             return SUCCESS;
         } catch (InsufficientFundsException e) {
@@ -93,9 +93,9 @@ class ApiController {
     @PostMapping("/undo")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<String> undoTransaction(@RequestBody @Valid UndoDto undoDto, HttpServletRequest request) {
-        String username = request.getUserPrincipal().getName();
+        final String username = request.getUserPrincipal().getName();
         try {
-            Account account = userService.getAccountByUsername(username);
+            final Account account = userService.getAccountByUsername(username);
             accountService.undoTransaction(account, undoDto.getTransactionId());
             return SUCCESS;
         } catch (TransactionsNotConsistentException | TransactionsNotFoundException e) {
@@ -106,7 +106,7 @@ class ApiController {
     @PostMapping("/close")
     @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<String> close(HttpServletRequest request) {
-        String username = request.getUserPrincipal().getName();
+        final String username = request.getUserPrincipal().getName();
         try {
             userService.disableUser(username);
             return SUCCESS;

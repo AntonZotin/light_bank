@@ -21,34 +21,32 @@ public class TransactionHandler {
 
     private final TransactionRepository repository;
 
-    public TransactionHandler(TransactionRepository repository, NotificationService notificationService, AccountService accountService) {
+    public TransactionHandler(final TransactionRepository repository, final NotificationService notificationService, final AccountService accountService) {
         this.repository = repository;
         this.notificationService = notificationService;
         this.accountService = accountService;
     }
 
     @Before("execution(* com.bank.light.repositories.TransactionRepository.save(..))")
-    public void beforeSave(JoinPoint jp) {
-        Object[] args = jp.getArgs();
-        if (args[0] instanceof Transaction) {
-            Transaction transaction = (Transaction) args[0];
-            LocalDateTime now = LocalDateTime.now();
+    public void beforeSave(final JoinPoint jp) {
+        final Object[] args = jp.getArgs();
+        if (args[0] instanceof Transaction transaction) {
+            final LocalDateTime now = LocalDateTime.now();
             if (transaction.getAmount() >= 10_000 || transaction.getAmount() <= -10_000) {
                 pushNotification(transaction.getAccount().getPaymentAccount(), "More than 10000");
             }
-            int hour = now.getHour();
+            final int hour = now.getHour();
             if (hour >= 1 && hour <= 7) {
                 pushNotification(transaction.getAccount().getPaymentAccount(), "User must sleep");
             }
-            LocalDateTime limit = now.minus(1, ChronoUnit.DAYS);
+            final LocalDateTime limit = now.minus(1, ChronoUnit.DAYS);
             if (repository.countByAccountAndCreatedAtAfter(transaction.getAccount(), limit) > 5) {
                 pushNotification(transaction.getAccount().getPaymentAccount(), "Too much transactions");
             }
         }
     }
 
-    private void pushNotification(String paymentAccount, String message) {
-        String username = accountService.getUsername(paymentAccount);
-        notificationService.notifyManagers(username, message);
+    private void pushNotification(final String paymentAccount, final String message) {
+        notificationService.notifyManagers(accountService.getUsername(paymentAccount), message);
     }
 }

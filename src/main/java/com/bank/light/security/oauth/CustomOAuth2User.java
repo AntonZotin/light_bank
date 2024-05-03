@@ -17,7 +17,7 @@ public class CustomOAuth2User implements OAuth2User, Serializable {
 
     private final Collection<GrantedAuthority> authorities;
 
-    public CustomOAuth2User(OAuth2User oauth2User) {
+    public CustomOAuth2User(final OAuth2User oauth2User) {
         this.oauth2User = oauth2User;
         this.authorities = new HashSet<>(oauth2User.getAuthorities());
     }
@@ -37,7 +37,7 @@ public class CustomOAuth2User implements OAuth2User, Serializable {
         return oauth2User.getAttribute("email");
     }
 
-    public void addRoles(Set<Role> grantedAuthority) {
+    public void addRoles(final Set<Role> grantedAuthority) {
         grantedAuthority.forEach(role -> this.authorities.add(new SimpleGrantedAuthority(role.getName())));
     }
 }

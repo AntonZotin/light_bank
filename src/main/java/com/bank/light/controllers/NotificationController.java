@@ -24,7 +24,7 @@ public class NotificationController {
 
     @GetMapping("/notifications")
     public String notificationsPage(Principal principal, Model model, @RequestParam Map<String,String> params) {
-        Long pages = notificationService.pageCount(principal.getName());
+        final Long pages = notificationService.pageCount(principal.getName());
         model.addAttribute("pages", pages);
         int page = (params.containsKey("page")) ? Integer.parseInt(params.get("page")) - 1 : 0;
         if (page >= pages || page < 0) page = 0;

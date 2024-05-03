@@ -15,26 +15,26 @@ public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepo;
 
-    public RoleServiceImpl(RoleRepository roleRepo) {
+    public RoleServiceImpl(final RoleRepository roleRepo) {
         this.roleRepo = roleRepo;
     }
 
-    public Set<Role> getRoles(String roleName) {
-        Role user = getRole(Role.USER);
-        Role manager = getRole(Role.MANAGER);
-        Role admin = getRole(Role.ADMIN);
-        if (roleName.equals(Role.ADMIN))
-            return Set.of(user, manager, admin);
-        else if (roleName.equals(Role.MANAGER))
-            return Set.of(user, manager);
-        else return Set.of(user);
+    public Set<Role> getRoles(final String roleName) {
+        final Role user = getRole(Role.USER);
+        final Role manager = getRole(Role.MANAGER);
+        final Role admin = getRole(Role.ADMIN);
+        return switch (roleName) {
+            case Role.ADMIN -> Set.of(user, manager, admin);
+            case Role.MANAGER -> Set.of(user, manager);
+            default -> Set.of(user);
+        };
     }
 
-    public Role getRole(String roleName) {
+    public Role getRole(final String roleName) {
         Role role = roleRepo.findByName(roleName);
         if (role == null) {
             role = roleRepo.save(new Role(roleName));
-            log.info("Add role %s".formatted(role));
+            log.info("Add role: {}", role);
         }
         return role;
     }

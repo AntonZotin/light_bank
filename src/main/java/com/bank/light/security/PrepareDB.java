@@ -20,10 +20,10 @@ public class PrepareDB {
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepo, RoleService roleService, PasswordEncoder encoder) {
         return args -> {
-            Set<Role> userRole = Set.of(roleService.getRole(Role.USER));
-            Set<Role> managerRole = Set.of(roleService.getRole(Role.MANAGER));
-            Set<Role> adminRole = Set.of(roleService.getRole(Role.ADMIN));
-            String password = encoder.encode("password");
+            final Set<Role> userRole = Set.of(roleService.getRole(Role.USER));
+            final Set<Role> managerRole = Set.of(roleService.getRole(Role.MANAGER));
+            final Set<Role> adminRole = Set.of(roleService.getRole(Role.ADMIN));
+            final String password = encoder.encode("password");
             if (userRepo.count() == 0) {
                 print(userRepo.save(new User("user1", password, userRole)));
                 print(userRepo.save(new User("user2", password, userRole)));
@@ -35,7 +35,7 @@ public class PrepareDB {
         };
     }
 
-    private void print(User user) {
-        log.info("Add %s".formatted(user));
+    private void print(final User user) {
+        log.info("Add {}", user);
     }
 }

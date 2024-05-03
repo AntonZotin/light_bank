@@ -16,17 +16,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserService service;
 
-    public CustomOAuth2UserService(UserService service) {
+    public CustomOAuth2UserService(final UserService service) {
         this.service = service;
     }
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User user = super.loadUser(userRequest);
-        CustomOAuth2User newUser = new CustomOAuth2User(user);
+    public OAuth2User loadUser(final OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        final OAuth2User user = super.loadUser(userRequest);
+        final CustomOAuth2User newUser = new CustomOAuth2User(user);
         User exist = service.getByUsername(newUser.getName());
         if (exist == null) {
-            String password = UUID.randomUUID().toString();
+            final String password = UUID.randomUUID().toString();
             exist = service.register(new UserDto(newUser.getName(), password, password));
         }
         newUser.addRoles(exist.getRoles());

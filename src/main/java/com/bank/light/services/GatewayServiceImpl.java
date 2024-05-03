@@ -8,7 +8,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
@@ -19,26 +18,23 @@ public class GatewayServiceImpl implements GatewayService {
 
     private final Map<String, Double> lastCurrencies = new ConcurrentHashMap<>();
 
-    // hour of last currencies request
-    private int requestHour = -1;
+    private int lastRequestHour = -1;
 
     public Map<String, Double> getCurrencies() {
-        int hour = LocalTime.now().getHour();
-        if (hour != requestHour) {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request =
-                    HttpRequest.newBuilder(URI.create("https://www.cbr-xml-daily.ru/daily_json.js")).build();
-            HttpResponse<String> response;
+        final int hour = LocalTime.now().getHour();
+        if (hour != lastRequestHour) {
+            final HttpClient client = HttpClient.newHttpClient();
+            final HttpRequest request = HttpRequest.newBuilder(URI.create("https://www.cbr-xml-daily.ru/daily_json.js")).build();
+            final HttpResponse<String> response;
             try {
                 response = client.send(request, HttpResponse.BodyHandlers.ofString());
             } catch (IOException | InterruptedException e) {
                 throw new GatewayException(e.getMessage());
             }
-            String body = response.body();
-            JSONObject currencies = new JSONObject(body).getJSONObject("Valute");
+            final JSONObject currencies = new JSONObject(response.body()).getJSONObject("Valute");
             lastCurrencies.put("eur", currencies.getJSONObject("EUR").getDouble("Value"));
             lastCurrencies.put("usd", currencies.getJSONObject("USD").getDouble("Value"));
-            requestHour = hour;
+            lastRequestHour = hour;
         }
         return lastCurrencies;
     }

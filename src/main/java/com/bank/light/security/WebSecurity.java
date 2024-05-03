@@ -28,7 +28,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class WebSecurity {
     private final UserRepository userRepository;
 
-    public WebSecurity(UserRepository userRepository) {
+    public WebSecurity(final UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -38,32 +38,32 @@ public class WebSecurity {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    public AuthenticationManager authenticationManager(final UserDetailsService userDetailsService, final PasswordEncoder passwordEncoder) {
+        final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
-        ProviderManager providerManager = new ProviderManager(authenticationProvider);
+        final ProviderManager providerManager = new ProviderManager(authenticationProvider);
         providerManager.setEraseCredentialsAfterAuthentication(false);
         return providerManager;
     }
 
     @Bean
     public RoleHierarchy roleHierarchy() {
-        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+        final RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
         hierarchy.setHierarchy(Role.ADMIN + " > " + Role.MANAGER + "\n" + Role.MANAGER + " > " + Role.USER);
         return hierarchy;
     }
 
     @Bean
-    public MethodSecurityExpressionHandler expressionHandler(RoleHierarchy roleHierarchy) {
-        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+    public MethodSecurityExpressionHandler expressionHandler(final RoleHierarchy roleHierarchy) {
+        final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
         expressionHandler.setRoleHierarchy(roleHierarchy);
         return expressionHandler;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuth2UserService userService) throws Exception {
-        String[] resources = new String[]{"/", "/login", "/oauth/**", "/registration", "/css/**", "/images/**", "/js/**"};
+    public SecurityFilterChain securityFilterChain(final HttpSecurity http, final CustomOAuth2UserService userService) throws Exception {
+        final String[] resources = new String[]{"/", "/login", "/oauth/**", "/registration", "/css/**", "/images/**", "/js/**"};
 
         return http
                 .authorizeHttpRequests(requests -> requests

@@ -43,7 +43,7 @@ public class UserController {
 
     private final TransactionService transactionService;
 
-    public UserController(UserService userService, AccountService accountService, TransactionService transactionService) {
+    public UserController(final UserService userService, final AccountService accountService, final TransactionService transactionService) {
         this.userService = userService;
         this.accountService = accountService;
         this.transactionService = transactionService;
@@ -51,8 +51,7 @@ public class UserController {
 
     @GetMapping("/balance")
     public String balancePage(Principal principal, Model model) {
-        String name = principal.getName();
-        Account account = userService.getAccountByUsername(name);
+        final Account account = userService.getAccountByUsername(principal.getName());
         model.addAttribute("number", account.getPaymentAccount());
         model.addAttribute("balance", account.getBalance());
         return "balance";
@@ -65,14 +64,13 @@ public class UserController {
             @RequestParam("purpose") Optional<String> purpose,
             @RequestParam("page") Optional<Integer> page
     ) {
-        String currentPurpose = purpose.orElse(null);
-        int currentPage = page.orElse(1) - 1;
-        String name = principal.getName();
-        String account = userService.getAccountByUsername(name).getUser().getUsername();
-        Long pages = transactionService.pageCount(account, currentPurpose);
+        final String currentPurpose = purpose.orElse(null);
+        final String account = userService.getAccountByUsername(principal.getName()).getUser().getUsername();
+        final Long pages = transactionService.pageCount(account, currentPurpose);
         model.addAttribute("pages", pages);
+        int currentPage = page.orElse(1) - 1;
         if (currentPage >= pages || currentPage < 0) currentPage = 0;
-        List<Transaction> transactions = transactionService.findAllByPage(currentPage, account, currentPurpose);
+        final List<Transaction> transactions = transactionService.findAllByPage(currentPage, account, currentPurpose);
         model.addAttribute("transactions", transactions);
         model.addAttribute("page", currentPage);
         model.addAttribute("purpose", currentPurpose);
@@ -83,8 +81,7 @@ public class UserController {
     @PostMapping("/deposit")
     public String deposit(@Valid DepositDto depositDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
-            Account account = userService.getAccountByUsername(principal.getName());
-            accountService.deposit(account, Double.parseDouble(depositDto.getAmount()));
+            accountService.deposit(userService.getAccountByUsername(principal.getName()), Double.parseDouble(depositDto.getAmount()));
             redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Deposit was successfully");
         });
         return "redirect:/balance";
@@ -97,8 +94,8 @@ public class UserController {
                 redirectAttributes.addFlashAttribute("MSG_ERROR", "You can't transfer money to yourself.");
             } else {
                 try {
-                    Account account = userService.getAccountByUsername(principal.getName());
-                    Account receiver = userService.getAccountByUsername(transferDto.getUsername());
+                    final Account account = userService.getAccountByUsername(principal.getName());
+                    final Account receiver = userService.getAccountByUsername(transferDto.getUsername());
                     accountService.transfer(account, Double.parseDouble(transferDto.getAmount()), receiver);
                     redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Transfer was successfully");
                 } catch (InsufficientFundsException | UserNotFoundException e) {
@@ -113,8 +110,7 @@ public class UserController {
     public String withdraw(@Valid DepositDto depositDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
             try {
-                Account account = userService.getAccountByUsername(principal.getName());
-                accountService.withdraw(account, Double.parseDouble(depositDto.getAmount()));
+                accountService.withdraw(userService.getAccountByUsername(principal.getName()), Double.parseDouble(depositDto.getAmount()));
                 redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Withdraw was successfully");
             } catch (InsufficientFundsException e) {
                 redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
@@ -127,8 +123,7 @@ public class UserController {
     public String undoTransaction(@Valid UndoDto undoDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
             try {
-                Account account = userService.getAccountByUsername(principal.getName());
-                accountService.undoTransaction(account, undoDto.getTransactionId());
+                accountService.undoTransaction(userService.getAccountByUsername(principal.getName()), undoDto.getTransactionId());
                 redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Transaction undo successfully");
             } catch (TransactionsNotConsistentException | TransactionsNotFoundException e) {
                 redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
@@ -152,9 +147,9 @@ public class UserController {
 
     private void checkErrors(BindingResult result, RedirectAttributes redirectAttributes, Runnable task) {
         if(result.hasErrors()){
-            List<String> errors = result.getAllErrors().stream()
-                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.toList());
-            redirectAttributes.addFlashAttribute("MSG_ERROR", String.join(", ", errors));
+            String errors = result.getAllErrors().stream()
+                    .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(", "));
+            redirectAttributes.addFlashAttribute("MSG_ERROR", errors);
         } else {
             task.run();
         }

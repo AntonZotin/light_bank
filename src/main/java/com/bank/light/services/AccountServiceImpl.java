@@ -29,9 +29,9 @@ public class AccountServiceImpl implements AccountService {
     private final TransactionTemplate template;
 
     public AccountServiceImpl(final AccountRepository repository, final TransactionService transactionService, final TransactionTemplate template) {
+        this.locks = new ConcurrentHashMap<>();
         this.repository = repository;
         this.transactionService = transactionService;
-        this.locks = new ConcurrentHashMap<>();
         this.template = template;
     }
 

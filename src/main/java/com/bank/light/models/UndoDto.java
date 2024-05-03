@@ -1,4 +1,3 @@
-
 package com.bank.light.models;
 
 import jakarta.validation.constraints.NotNull;
