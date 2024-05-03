@@ -50,15 +50,10 @@ public class ExcelExporter {
     private void createCell(final Row row, final int columnCount, final Object value, final CellStyle style) {
         this.sheet.autoSizeColumn(columnCount);
         final Cell cell = row.createCell(columnCount);
-        switch (value) {
-            case Integer i -> cell.setCellValue(i);
-            case Boolean b -> cell.setCellValue(b);
-        }
-
-        if (value instanceof Integer) {
-            cell.setCellValue((Integer) value);
-        } else if (value instanceof Boolean) {
-            cell.setCellValue((Boolean) value);
+        if (value instanceof Integer i) {
+            cell.setCellValue(i);
+        } else if (value instanceof Boolean b) {
+            cell.setCellValue(b);
         } else {
             cell.setCellValue((String) value);
         }
@@ -66,42 +61,40 @@ public class ExcelExporter {
     }
 
     private void writeDataLines() {
-        int rowCount = 1;
-
-        CellStyle style = this.workbook.createCellStyle();
-        XSSFFont font = this.workbook.createFont();
+        final XSSFFont font = this.workbook.createFont();
         font.setFontHeight(14);
+        final CellStyle style = this.workbook.createCellStyle();
         style.setFont(font);
 
+        int rowCount = 1;
         for (Transaction transaction : this.list) {
-            Row row = this.sheet.createRow(rowCount++);
+            final Row row = this.sheet.createRow(rowCount++);
             int columnCount = 0;
-
             createCell(row, columnCount++, transaction.getId().toString(), style);
             createCell(row, columnCount++, transaction.getAccountUsername(), style);
             createCell(row, columnCount++, transaction.getAmount().toString(), style);
             createCell(row, columnCount++, transaction.getPurpose(), style);
             createCell(row, columnCount++, transaction.getCreatedAtFormatted(), style);
             createCell(row, columnCount++, transaction.getReceiverUsername(), style);
-            createCell(row, columnCount++, transaction.getSenderUsername(), style);
+            createCell(row, columnCount, transaction.getSenderUsername(), style);
         }
     }
 
-    private void writeToOutput(ByteArrayOutputStream outputStream) throws IOException {
+    private void writeToOutput(final ByteArrayOutputStream outputStream) throws IOException {
         writeHeaderLine();
         writeDataLines();
         this.workbook.write(outputStream);
         this.workbook.close();
     }
 
-    public static ResponseEntity<byte[]> export(List<Transaction> transactions) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ExcelExporter excelExporter = new ExcelExporter(transactions);
+    public static ResponseEntity<byte[]> export(final List<Transaction> transactions) {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ExcelExporter excelExporter = new ExcelExporter(List.copyOf(transactions));
         try {
-            excelExporter.writeToOutput(out);
-            HttpHeaders headers = new HttpHeaders();
+            final HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDispositionFormData("attachment", "transactions.xlsx");
+            excelExporter.writeToOutput(out);
             return new ResponseEntity<>(out.toByteArray(), headers, HttpStatus.OK);
         } catch (IOException e) {
             throw new ExcelExporterException("Error writing file to output stream. %s".formatted(e.getMessage()));

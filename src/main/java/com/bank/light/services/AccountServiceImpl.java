@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -25,13 +26,16 @@ public class AccountServiceImpl implements AccountService {
 
     private final TransactionService transactionService;
 
-    public AccountServiceImpl(AccountRepository repository, TransactionService transactionService) {
+    private final TransactionTemplate template;
+
+    public AccountServiceImpl(final AccountRepository repository, final TransactionService transactionService, final TransactionTemplate template) {
         this.repository = repository;
         this.transactionService = transactionService;
         this.locks = new ConcurrentHashMap<>();
+        this.template = template;
     }
 
-    public void deposit(Account account, Double amount) {
+    public void deposit(final Account account, final Double amount) {
         withLockAndTransaction(() -> {
             transactionService.deposit(account, amount);
             account.setBalance(account.getBalance() + amount);
@@ -39,7 +43,7 @@ public class AccountServiceImpl implements AccountService {
         }, "deposit");
     }
 
-    public void transfer(Account account, Double amount, Account receiver) {
+    public void transfer(final Account account, final Double amount, final Account receiver) {
         withLockAndTransaction(() -> {
             if (account.getBalance() < amount) {
                 throw new InsufficientFundsException();
@@ -52,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
         }, "transfer");
     }
 
-    public void withdraw(Account account, Double amount) {
+    public void withdraw(final Account account, final Double amount) {
         withLockAndTransaction(() -> {
             if (account.getBalance() < amount) {
                 throw new InsufficientFundsException();
@@ -63,13 +67,13 @@ public class AccountServiceImpl implements AccountService {
         }, "withdraw");
     }
 
-    public void undoTransaction(Account account, Long transactionId) {
+    public void undoTransaction(final Account account, final Long transactionId) {
         withLockAndTransaction(() -> {
-            Transaction transaction = transactionService.get(transactionId);
+            final Transaction transaction = transactionService.get(transactionId);
             if (!transaction.getAccount().getId().equals(account.getId())) {
                 throw new TransactionsPermissionDeniedException();
             }
-            Double amount = transaction.getAmount();
+            final Double amount = transaction.getAmount();
             switch (transaction.getPurpose()) {
                 case (Transaction.DEPOSIT), (Transaction.WITHDRAW) -> {
                     transactionService.undo(transaction.getId());
@@ -77,7 +81,7 @@ public class AccountServiceImpl implements AccountService {
                     repository.save(account);
                 }
                 case (Transaction.TRANSFER) -> {
-                    Account receiver = (transaction.getAmount() > 0) ? transaction.getSender() : transaction.getReceiver();
+                    final Account receiver = (transaction.getAmount() > 0) ? transaction.getSender() : transaction.getReceiver();
                     transactionService.undo(transaction.getTransferId());
                     receiver.setBalance(receiver.getBalance() + amount);
                     repository.save(receiver);
@@ -90,25 +94,25 @@ public class AccountServiceImpl implements AccountService {
     }
 
     public List<String> listAccountNames() {
-        return repository.findAll().stream().map(a -> a.getUser().getUsername()).sorted().collect(Collectors.toList());
+        return repository.findAll().stream().map(a -> a.getUser().getUsername()).sorted().toList();
     }
 
-    public String getUsername(String paymentAccount) {
+    public String getUsername(final String paymentAccount) {
         return repository.getByPaymentAccount(paymentAccount).getUser().getUsername();
     }
 
-    private void withLockAndTransaction(Runnable task, String methodKey) {
-        ReentrantLock lock = locks.computeIfAbsent(methodKey, k -> new ReentrantLock());
+    private void withLockAndTransaction(final Runnable task, final String methodKey) {
+        final ReentrantLock lock = locks.computeIfAbsent(methodKey, k -> new ReentrantLock());
         lock.lock();
-        try{
-            withTransaction(task);
+        try {
+            template.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(final TransactionStatus status) {
+                    task.run();
+                }
+            });
         } finally {
             lock.unlock();
         }
-    }
-
-    @Transactional
-    void withTransaction(Runnable task) {
-        task.run();
     }
 }
