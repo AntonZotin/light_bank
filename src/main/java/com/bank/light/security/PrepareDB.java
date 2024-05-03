@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class PrepareDB {
 
-    private static final Logger log = LoggerFactory.getLogger(PrepareDB.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrepareDB.class);
 
     @Bean
     CommandLineRunner initDatabase(UserRepository userRepo, RoleService roleService, PasswordEncoder encoder) {
@@ -36,6 +36,6 @@ public class PrepareDB {
     }
 
     private void print(final User user) {
-        log.info("Add {}", user);
+        LOG.info("Add {}", user);
     }
 }

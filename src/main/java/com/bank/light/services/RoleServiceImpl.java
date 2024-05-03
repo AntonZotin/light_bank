@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RoleServiceImpl implements RoleService {
 
-    private static final Logger log = LoggerFactory.getLogger(RoleServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RoleServiceImpl.class);
 
     private final RoleRepository roleRepo;
 
@@ -34,7 +34,7 @@ public class RoleServiceImpl implements RoleService {
         Role role = roleRepo.findByName(roleName);
         if (role == null) {
             role = roleRepo.save(new Role(roleName));
-            log.info("Add role: {}", role);
+            LOG.info("Add role: {}", role);
         }
         return role;
     }
