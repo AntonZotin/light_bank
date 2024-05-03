@@ -23,8 +23,6 @@ public interface UserService {
 
     List<User> getAllManagers();
 
-    List<User> getAllUsers();
-
     Long pageCount(String role);
 
     List<User> findAllByPage(Integer page, String role);

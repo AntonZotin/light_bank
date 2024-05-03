@@ -10,14 +10,16 @@ import java.net.http.HttpResponse;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GatewayServiceImpl implements GatewayService {
 
-    private final Map<String, Double> lastCurrencies = new HashMap<>();
+    private final Map<String, Double> lastCurrencies = new ConcurrentHashMap<>();
 
+    // hour of last currencies request
     private int requestHour = -1;
 
     public Map<String, Double> getCurrencies() {

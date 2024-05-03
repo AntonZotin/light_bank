@@ -1,6 +1,5 @@
 package com.bank.light.services;
 
-import com.bank.light.domain.Account;
 import com.bank.light.domain.Transaction;
 import com.bank.light.interfaces.AccountService;
 import com.bank.light.interfaces.NotificationService;
@@ -10,15 +9,11 @@ import java.time.temporal.ChronoUnit;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Aspect
 @Service
 public class TransactionHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final NotificationService notificationService;
 
@@ -27,7 +22,6 @@ public class TransactionHandler {
     private final TransactionRepository repository;
 
     public TransactionHandler(TransactionRepository repository, NotificationService notificationService, AccountService accountService) {
-        logger.info("Transaction handler started");
         this.repository = repository;
         this.notificationService = notificationService;
         this.accountService = accountService;

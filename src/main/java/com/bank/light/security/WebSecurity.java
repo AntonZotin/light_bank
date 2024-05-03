@@ -26,7 +26,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurity {
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public WebSecurity(UserRepository userRepository) {
         this.userRepository = userRepository;

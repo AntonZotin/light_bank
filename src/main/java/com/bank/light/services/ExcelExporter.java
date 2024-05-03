@@ -4,7 +4,6 @@ import com.bank.light.domain.Transaction;
 import com.bank.light.exceptions.ExcelExporterException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -18,41 +17,44 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class ExcelExporter {
-    private XSSFWorkbook workbook;
-    private XSSFSheet sheet;
-    private List<Transaction> list;
+    private final XSSFWorkbook workbook;
+    private final XSSFSheet sheet;
+    private final List<Transaction> list;
 
-    private ExcelExporter(List<Transaction> list) {
-        this.list = list;
+    private ExcelExporter(final List<Transaction> list) {
+        this.list = List.copyOf(list);
         this.workbook = new XSSFWorkbook();
+        this.sheet = this.workbook.createSheet("Transactions");
     }
 
 
     private void writeHeaderLine() {
-        this.sheet = workbook.createSheet("Transactions");
-
-        Row row = this.sheet.createRow(0);
-
-        CellStyle style = this.workbook.createCellStyle();
-        XSSFFont font = this.workbook.createFont();
+        final Row row = this.sheet.createRow(0);
+        final XSSFFont font = this.workbook.createFont();
         font.setBold(true);
         font.setFontHeight(16);
+        final CellStyle style = this.workbook.createCellStyle();
         style.setFont(font);
-        int columnCount = 0;
 
+        int columnCount = 0;
         createCell(row, columnCount++, "ID", style);
         createCell(row, columnCount++, "Account", style);
         createCell(row, columnCount++, "Amount", style);
         createCell(row, columnCount++, "Purpose", style);
         createCell(row, columnCount++, "Date", style);
         createCell(row, columnCount++, "Receiver", style);
-        createCell(row, columnCount++, "Sender", style);
+        createCell(row, columnCount, "Sender", style);
 
     }
 
-    private void createCell(Row row, int columnCount, Object value, CellStyle style) {
+    private void createCell(final Row row, final int columnCount, final Object value, final CellStyle style) {
         this.sheet.autoSizeColumn(columnCount);
-        Cell cell = row.createCell(columnCount);
+        final Cell cell = row.createCell(columnCount);
+        switch (value) {
+            case Integer i -> cell.setCellValue(i);
+            case Boolean b -> cell.setCellValue(b);
+        }
+
         if (value instanceof Integer) {
             cell.setCellValue((Integer) value);
         } else if (value instanceof Boolean) {
