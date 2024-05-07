@@ -39,7 +39,7 @@ public class AuthController {
             model.addAttribute("usd", currencies.get("usd"));
             model.addAttribute("eur", currencies.get("eur"));
         } catch (GatewayException e) {
-            model.addAttribute("MSG_ERROR", e);
+            model.addAttribute(MSG_ERROR, e);
         }
         return "home";
     }
@@ -60,7 +60,7 @@ public class AuthController {
         if(result.hasErrors()){
             String errors = result.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(", "));
-            model.addAttribute("MSG_ERROR", errors);
+            model.addAttribute(MSG_ERROR, errors);
         } else {
             try {
                 userService.register(userDto);
@@ -68,11 +68,13 @@ public class AuthController {
                 redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Account successfully created");
                 return "redirect:/";
             } catch (UserAlreadyExistException e) {
-                model.addAttribute("MSG_ERROR", "An account for that username already exists.");
+                model.addAttribute(MSG_ERROR, "An account for that username already exists.");
             } catch (ServletException e) {
-                model.addAttribute("MSG_ERROR", "Error: " + e.getMessage());
+                model.addAttribute(MSG_ERROR, "Error: " + e.getMessage());
             }
         }
         return "registration";
     }
+
+    private static final String MSG_ERROR = "MSG_ERROR";
 }

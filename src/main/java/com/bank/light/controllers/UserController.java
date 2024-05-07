@@ -82,26 +82,26 @@ public class UserController {
     public String deposit(@Valid DepositDto depositDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
             accountService.deposit(principal.getName(), Double.parseDouble(depositDto.getAmount()));
-            redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Deposit was successfully");
+            redirectAttributes.addFlashAttribute(MSG_SUCCESS, "Deposit was successfully");
         });
-        return "redirect:/balance";
+        return REDIRECT_BALANCE;
     }
 
     @PostMapping("/transfer")
     public String transfer(@Valid TransferDto transferDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
             if (principal.getName().equals(transferDto.getUsername())) {
-                redirectAttributes.addFlashAttribute("MSG_ERROR", "You can't transfer money to yourself.");
+                redirectAttributes.addFlashAttribute(MSG_ERROR, "You can't transfer money to yourself.");
             } else {
                 try {
                     accountService.transfer(principal.getName(), Double.parseDouble(transferDto.getAmount()), transferDto.getUsername());
-                    redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Transfer was successfully");
+                    redirectAttributes.addFlashAttribute(MSG_SUCCESS, "Transfer was successfully");
                 } catch (InsufficientFundsException | UserNotFoundException e) {
-                    redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
+                    redirectAttributes.addFlashAttribute(MSG_ERROR, e.getMessage());
                 }
             }
         });
-        return "redirect:/balance";
+        return REDIRECT_BALANCE;
     }
 
     @PostMapping("/withdraw")
@@ -109,12 +109,12 @@ public class UserController {
         checkErrors(result, redirectAttributes, () -> {
             try {
                 accountService.withdraw(principal.getName(), Double.parseDouble(depositDto.getAmount()));
-                redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Withdraw was successfully");
+                redirectAttributes.addFlashAttribute(MSG_SUCCESS, "Withdraw was successfully");
             } catch (InsufficientFundsException e) {
-                redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
+                redirectAttributes.addFlashAttribute(MSG_ERROR, e.getMessage());
             }
         });
-        return "redirect:/balance";
+        return REDIRECT_BALANCE;
     }
 
     @PostMapping("/undo")
@@ -122,9 +122,9 @@ public class UserController {
         checkErrors(result, redirectAttributes, () -> {
             try {
                 accountService.undoTransaction(principal.getName(), undoDto.getTransactionId());
-                redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Transaction undo successfully");
+                redirectAttributes.addFlashAttribute(MSG_SUCCESS, "Transaction undo successfully");
             } catch (TransactionsNotConsistentException | TransactionsNotFoundException e) {
-                redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
+                redirectAttributes.addFlashAttribute(MSG_ERROR, e.getMessage());
             }
         });
         return "redirect:/history";
@@ -135,11 +135,11 @@ public class UserController {
         try {
             userService.disableUser(principal.getName());
             request.logout();
-            redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Account closed successfully");
+            redirectAttributes.addFlashAttribute(MSG_SUCCESS, "Account closed successfully");
             return "redirect:/";
         } catch (UserNotFoundException | BalanceNotNullException | ServletException e) {
-            redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
-            return "redirect:/balance";
+            redirectAttributes.addFlashAttribute(MSG_ERROR, e.getMessage());
+            return REDIRECT_BALANCE;
         }
     }
 
@@ -147,9 +147,15 @@ public class UserController {
         if(result.hasErrors()){
             String errors = result.getAllErrors().stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(", "));
-            redirectAttributes.addFlashAttribute("MSG_ERROR", errors);
+            redirectAttributes.addFlashAttribute(MSG_ERROR, errors);
         } else {
             task.run();
         }
     }
+
+    private static final String REDIRECT_BALANCE = "redirect:/balance";
+
+    private static final String MSG_SUCCESS = "MSG_SUCCESS";
+
+    private static final String MSG_ERROR = "MSG_ERROR";
 }

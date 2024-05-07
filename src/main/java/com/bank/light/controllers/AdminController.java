@@ -48,15 +48,15 @@ public class AdminController {
     public String userEditPage(Model model, @RequestParam Map<String,String> params, RedirectAttributes redirectAttributes) {
         final String userId = params.getOrDefault("id", "");
         if (userId.isEmpty() || !isInteger(userId)) {
-            redirectAttributes.addFlashAttribute("MSG_ERROR", "Request has incorrect id parameter.");
-            return "redirect:/users";
+            redirectAttributes.addFlashAttribute(MSG_ERROR, "Request has incorrect id parameter.");
+            return REDIRECT_USERS;
         }
         User user;
         try {
             user = userService.get(Long.parseLong(userId));
         } catch (UserNotFoundException e) {
-            redirectAttributes.addFlashAttribute("MSG_ERROR", "Requested user not found");
-            return "redirect:/users";
+            redirectAttributes.addFlashAttribute(MSG_ERROR, "Requested user not found");
+            return REDIRECT_USERS;
         }
         model.addAttribute("user", user);
         model.addAttribute("roles", List.of(Role.USER_VALUE, Role.MANAGER_VALUE, Role.ADMIN_VALUE));
@@ -68,9 +68,9 @@ public class AdminController {
         try {
             userService.edit(userEditDto);
             redirectAttributes.addFlashAttribute("MSG_SUCCESS", "User change successfully");
-            return "redirect:/users";
+            return REDIRECT_USERS;
         } catch (UserEditException e) {
-            redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
+            redirectAttributes.addFlashAttribute(MSG_ERROR, e.getMessage());
             redirectAttributes.addAttribute("id", userEditDto.getUserId());
             return "redirect:/users/edit";
         }
@@ -86,4 +86,8 @@ public class AdminController {
     }
 
     private static final String ROLE = "Select role";
+
+    private static final String MSG_ERROR = "MSG_ERROR";
+
+    private static final String REDIRECT_USERS = "redirect:/users";
 }

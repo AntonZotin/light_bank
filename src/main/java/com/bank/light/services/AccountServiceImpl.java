@@ -38,32 +38,26 @@ public class AccountServiceImpl implements AccountService {
     public void deposit(final String username, final Double amount) {
         withLockAndTransaction(() -> {
             Account account = userService.getAccountByUsername(username);
-            Double balance = account.getBalance() + amount;
             transactionService.deposit(account, amount);
-            account.setBalance(balance);
+            account.setBalance(account.getBalance() + amount);
             repository.save(account);
-            System.out.println("Deposit to " + username + ": expect " + balance + ", actual " + repository.getByPaymentAccount(account.getPaymentAccount()).getBalance());
         }, username);
     }
 
     public void transfer(final String username, final Double amount, final String receiverUsername) {
         List<String> usernames = Stream.of(username, receiverUsername).sorted().map(Object::toString).toList();
-        withLockAndTransaction(() -> {
-            withLockAndTransaction(() -> {
-                final Account account = userService.getAccountByUsername(username);
-                final Account receiver = userService.getAccountByUsername(receiverUsername);
-                if (account.getBalance() < amount) {
-                    throw new InsufficientFundsException();
-                }
-                Double balance = account.getBalance() - amount;
-                transactionService.transfer(account, amount, receiver);
-                receiver.setBalance(receiver.getBalance() + amount);
-                repository.save(receiver);
-                account.setBalance(account.getBalance() - amount);
-                repository.save(account);
-                System.out.println("Transfer from " + username + " to " + receiverUsername + ": expect " + balance + ", actual " + repository.getByPaymentAccount(account.getPaymentAccount()).getBalance());
-            }, usernames.get(1));
-        }, usernames.get(0));
+        withLockAndTransaction(() -> withLockAndTransaction(() -> {
+            final Account account = userService.getAccountByUsername(username);
+            final Account receiver = userService.getAccountByUsername(receiverUsername);
+            if (account.getBalance() < amount) {
+                throw new InsufficientFundsException();
+            }
+            transactionService.transfer(account, amount, receiver);
+            receiver.setBalance(receiver.getBalance() + amount);
+            repository.save(receiver);
+            account.setBalance(account.getBalance() - amount);
+            repository.save(account);
+        }, usernames.get(1)), usernames.get(0));
     }
 
     public void withdraw(final String username, final Double amount) {
@@ -114,7 +108,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Transactional
-    public void withLockAndTransaction(final Runnable task, final String username) {
+    void withLockAndTransaction(final Runnable task, final String username) {
         final ReentrantLock lock = locks.computeIfAbsent(username, k -> new ReentrantLock());
         lock.lock();
         try {
