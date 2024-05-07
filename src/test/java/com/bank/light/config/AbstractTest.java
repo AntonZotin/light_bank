@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles(TestProfile.PROFILE_NAME)
 @SpringBootTest
-public class AbstractTest {
+public abstract class AbstractTest {
 
     @Autowired
     public UserService userService;
