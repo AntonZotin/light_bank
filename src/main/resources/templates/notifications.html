@@ -37,7 +37,7 @@
     <div th:if="${!notifications.isEmpty()}" class="mt-5 text-center mx-auto">
         <div class="flex space-x-3 justify-center items-center max-h-10">
             <span class="text-2xl font-medium" th:text="#{page}"/>
-            <a th:each="i : ${#numbers.sequence(1, pages)}" href="#" onclick="onChangePage(this.text)" th:text="${i}" class="block py-1 px-3 rounded-full"
+            <a th:each="i : ${#numbers.sequence(1, pages)}" th:if="${i == 1 or i == pages or page - 5 < i and i < page + 5}" href="#" onclick="onChangePage(this.text)" th:text="${i}" class="block py-1 px-3 rounded-full"
                th:classappend="${i == page + 1} ? 'bg-gray-500 pointer-events-none cursor-not-allowed' : 'bg-green-500 hover:bg-green-700'"/>
         </div>
     </div>

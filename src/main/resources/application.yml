@@ -22,3 +22,10 @@ spring:
             client-id: ${CLIENT_ID}
             client-secret: ${CLIENT_SECRET}
             scope: email,profile
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+
+notificationQueueName: notification-queue

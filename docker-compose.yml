@@ -2,6 +2,7 @@ version: "3.5"
 
 volumes:
   db_data:
+  rabbitmq_data:
 
 services:
   app:
@@ -17,7 +18,8 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/light_bank
       - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_RABBITMQ_USERNAME=admin
+      - SPRING_RABBITMQ_PASSWORD=admin
 
   db:
     image: 'postgres:13.1-alpine'
@@ -30,3 +32,14 @@ services:
       - db_data:/var/lib/postgresql/data
     ports:
       - 5432
+
+  rabbitmq-bigpensia:
+    image: "rabbitmq:3.13-rc-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
