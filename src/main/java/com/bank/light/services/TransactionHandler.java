@@ -1,9 +1,10 @@
 package com.bank.light.services;
 
 import com.bank.light.domain.Transaction;
+import com.bank.light.interfaces.NotificationSender;
 import com.bank.light.models.NotificationMsg;
 import com.bank.light.repositories.TransactionRepository;
-import com.bank.light.services.rabbitmq.NotificationSender;
+import com.bank.light.services.rabbitmq.NotificationSenderImpl;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import org.aspectj.lang.JoinPoint;
@@ -19,7 +20,7 @@ public class TransactionHandler {
 
     private final TransactionRepository repository;
 
-    public TransactionHandler(final TransactionRepository repository, NotificationSender sender) {
+    public TransactionHandler(final TransactionRepository repository, NotificationSenderImpl sender) {
         this.repository = repository;
         this.sender = sender;
     }
