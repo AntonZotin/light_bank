@@ -93,4 +93,20 @@ class AccountTest extends AbstractTest {
         Assertions.assertEquals(80, userService.getAccountByUsername(user.getUsername()).getBalance());
         Assertions.assertEquals(20, userService.getAccountByUsername(user2.getUsername()).getBalance());
     }
+
+    @Test
+    void lockTest() throws InterruptedException {
+        int amount = 10_000;
+        User user = registerUser();
+        User user2 = registerUser("testUser2");
+        accountService.deposit(user.getAccount(), (double) amount);
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        executorService.submit(deposit(user.getAccount(), user.getUsername(), amount));
+        executorService.submit(transfer(user.getAccount(), user.getUsername(), user2.getAccount(), amount));
+        executorService.shutdown();
+        executorService.awaitTermination(120, TimeUnit.SECONDS);
+        Account account = userService.getAccountByUsername(user.getUsername());
+        Assertions.assertEquals(amount, account.getBalance());
+        Assertions.assertEquals(amount * 2 + 1, transactionService.findByAccount(account).size());
+    }
 }

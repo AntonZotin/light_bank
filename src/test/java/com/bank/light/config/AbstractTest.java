@@ -43,4 +43,22 @@ public abstract class AbstractTest {
             }
         };
     }
+
+    public Runnable deposit(Account account, String username, int amount) {
+        return () -> {
+            for (int i = 1; i <= amount; i++) {
+                accountService.deposit(account, 1.0);
+                if (i % 100 == 0) System.out.println(username + " deposit " + i);
+            }
+        };
+    }
+
+    public Runnable transfer(Account account, String username, Account receiver, int amount) {
+        return () -> {
+            for (int i = 1; i <= amount; i++) {
+                accountService.transfer(account, 1.0, receiver);
+                if (i % 100 == 0) System.out.println(username + " send " + i + " transactions");
+            }
+        };
+    }
 }

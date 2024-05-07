@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -40,10 +42,12 @@ public class AccountServiceImpl implements AccountService {
             transactionService.deposit(account, amount);
             account.setBalance(account.getBalance() + amount);
             repository.save(account);
-        }, "deposit");
+        }, account.getId().toString());
     }
 
     public void transfer(final Account account, final Double amount, final Account receiver) {
+        String accountIds = Stream.of(account.getId(), receiver.getId()).sorted()
+                .map(Object::toString).collect(Collectors.joining(","));
         withLockAndTransaction(() -> {
             if (account.getBalance() < amount) {
                 throw new InsufficientFundsException();
@@ -53,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
             repository.save(receiver);
             account.setBalance(account.getBalance() - amount);
             repository.save(account);
-        }, "transfer");
+        }, accountIds);
     }
 
     public void withdraw(final Account account, final Double amount) {
@@ -64,7 +68,7 @@ public class AccountServiceImpl implements AccountService {
             transactionService.withdraw(account, amount);
             account.setBalance(account.getBalance() - amount);
             repository.save(account);
-        }, "withdraw");
+        }, account.getId().toString());
     }
 
     public void undoTransaction(final Account account, final Long transactionId) {
@@ -90,7 +94,7 @@ public class AccountServiceImpl implements AccountService {
                 }
                 default -> throw new UnknownPurposeException(transaction.getPurpose());
             }
-        }, "undoTransaction");
+        }, account.getId().toString());
     }
 
     public List<String> listAccountNames() {
@@ -101,8 +105,8 @@ public class AccountServiceImpl implements AccountService {
         return repository.getByPaymentAccount(paymentAccount).getUser().getUsername();
     }
 
-    private void withLockAndTransaction(final Runnable task, final String methodKey) {
-        final ReentrantLock lock = locks.computeIfAbsent(methodKey, k -> new ReentrantLock());
+    private void withLockAndTransaction(final Runnable task, final String accountId) {
+        final ReentrantLock lock = locks.computeIfAbsent(accountId, k -> new ReentrantLock());
         lock.lock();
         try {
             template.execute(new TransactionCallbackWithoutResult() {
