@@ -37,7 +37,7 @@ public class AccountServiceImpl implements AccountService {
 
     public void deposit(final String username, final Double amount) {
         withLockAndTransaction(() -> {
-            Account account = userService.getAccountByUsername(username);
+            final Account account = userService.getAccountByUsername(username);
             transactionService.deposit(account, amount);
             account.setBalance(account.getBalance() + amount);
             repository.save(account);
@@ -62,7 +62,7 @@ public class AccountServiceImpl implements AccountService {
 
     public void withdraw(final String username, final Double amount) {
         withLockAndTransaction(() -> {
-            Account account = userService.getAccountByUsername(username);
+            final Account account = userService.getAccountByUsername(username);
             if (account.getBalance() < amount) {
                 throw new InsufficientFundsException();
             }
@@ -74,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
 
     public void undoTransaction(final String username, final Long transactionId) {
         withLockAndTransaction(() -> {
-            Account account = userService.getAccountByUsername(username);
+            final Account account = userService.getAccountByUsername(username);
             final Transaction transaction = transactionService.get(transactionId);
             if (!transaction.getAccount().getId().equals(account.getId())) {
                 throw new TransactionsPermissionDeniedException();
