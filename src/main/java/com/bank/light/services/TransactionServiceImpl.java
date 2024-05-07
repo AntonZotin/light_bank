@@ -11,6 +11,8 @@ import java.util.UUID;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -23,16 +25,19 @@ public class TransactionServiceImpl implements TransactionService {
         this.repository = repository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public Transaction deposit(final Account account, final Double amount) {
         return repository.save(new Transaction(amount, account, Transaction.DEPOSIT));
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public Transaction transfer(final Account account, final Double amount, final Account receiver) {
         final String transferId = UUID.randomUUID().toString();
         repository.save(new Transaction(amount, receiver, Transaction.TRANSFER, receiver, account, transferId));
         return repository.save(new Transaction(-amount, account, Transaction.TRANSFER, receiver, account, transferId));
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public Transaction withdraw(final Account account, final Double amount) {
         return repository.save(new Transaction(-amount, account, Transaction.WITHDRAW));
     }
@@ -70,10 +75,12 @@ public class TransactionServiceImpl implements TransactionService {
         else return pages(repository.count());
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void undo(final Long id) {
         repository.delete(get(id));
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void undo(final String transferId) {
         final List<Transaction> list = repository.findByTransferId(transferId);
         if (list.size() != 2) {
