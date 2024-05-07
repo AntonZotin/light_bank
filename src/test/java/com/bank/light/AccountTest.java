@@ -27,25 +27,28 @@ class AccountTest extends AbstractTest {
 
     @Test
     void balanceTest() {
-        User user = registerUser();
-        accountService.deposit(user.getAccount(), 3.0);
-        List<Transaction> history = transactionService.findByAccount(user.getAccount());
+        String username = registerUser().getUsername();
+        accountService.deposit(username, 3.0);
+        Account account = userService.getAccountByUsername(username);
+        List<Transaction> history = transactionService.findByAccount(account);
         Assertions.assertEquals(1, history.size());
         Assertions.assertEquals(3.0, history.get(0).getAmount());
-        Assertions.assertEquals(3.0, user.getAccount().getBalance());
-        accountService.withdraw(user.getAccount(), 1.0);
-        history = transactionService.findByAccount(user.getAccount());
+        Assertions.assertEquals(3.0, account.getBalance());
+        accountService.withdraw(username, 1.0);
+        account = userService.getAccountByUsername(username);
+        history = transactionService.findByAccount(account);
         Assertions.assertEquals(2, history.size());
         Assertions.assertEquals(-1.0, history.get(1).getAmount());
-        Assertions.assertEquals(2.0, user.getAccount().getBalance());
-        Assertions.assertThrows(BalanceNotNullException.class, () -> userService.disableUser(user.getUsername()));
-        accountService.withdraw(user.getAccount(), 2.0);
-        history = transactionService.findByAccount(user.getAccount());
+        Assertions.assertEquals(2.0, account.getBalance());
+        Assertions.assertThrows(BalanceNotNullException.class, () -> userService.disableUser(username));
+        accountService.withdraw(username, 2.0);
+        account = userService.getAccountByUsername(username);
+        history = transactionService.findByAccount(account);
         Assertions.assertEquals(3, history.size());
         Assertions.assertEquals(-2.0, history.get(2).getAmount());
-        Assertions.assertEquals(0.0, user.getAccount().getBalance());
-        userService.disableUser(user.getUsername());
-        Assertions.assertThrows(UserNotFoundException.class, () -> userService.getAccountByUsername(user.getUsername()));
+        Assertions.assertEquals(0.0, account.getBalance());
+        userService.disableUser(username);
+        Assertions.assertThrows(UserNotFoundException.class, () -> userService.getAccountByUsername(username));
     }
 
     @Test
@@ -55,9 +58,9 @@ class AccountTest extends AbstractTest {
         User user2 = registerUser("testUser2");
         User user3 = registerUser("testUser3");
         ExecutorService executorService = Executors.newFixedThreadPool(3);
-        executorService.submit(depositAndTransfer(user.getAccount(), user.getUsername(), user2.getAccount(), amount));
-        executorService.submit(depositAndTransfer(user2.getAccount(), user2.getUsername(), user3.getAccount(), amount));
-        executorService.submit(depositAndTransfer(user3.getAccount(), user3.getUsername(), user.getAccount(), amount));
+        executorService.submit(depositAndTransfer(user.getUsername(), user2.getUsername(), amount));
+        executorService.submit(depositAndTransfer(user2.getUsername(), user3.getUsername(), amount));
+        executorService.submit(depositAndTransfer(user3.getUsername(), user.getUsername(), amount));
         executorService.shutdown();
         executorService.awaitTermination(60, TimeUnit.SECONDS);
         Account account = userService.getAccountByUsername(user.getUsername());
@@ -73,25 +76,27 @@ class AccountTest extends AbstractTest {
 
     @Test
     void undoTransactionTest() {
-        User user = registerUser();
-        User user2 = registerUser("testUser2");
-        accountService.deposit(user.getAccount(), 100.0);
-        accountService.transfer(user.getAccount(), 10.0, user2.getAccount());
-        accountService.transfer(user.getAccount(), 15.0, user2.getAccount());
-        accountService.transfer(user.getAccount(), 20.0, user2.getAccount());
-        Assertions.assertEquals(55, user.getAccount().getBalance());
-        Assertions.assertEquals(45, user2.getAccount().getBalance());
-        Transaction transaction = transactionService.findByAccount(user.getAccount()).get(1);
+        String username = registerUser().getUsername();
+        String username2 = registerUser("testUser2").getUsername();
+        accountService.deposit(username, 100.0);
+        accountService.transfer(username, 10.0, username2);
+        accountService.transfer(username, 15.0, username2);
+        accountService.transfer(username, 20.0, username2);
+        Account account = userService.getAccountByUsername(username);
+        Account account2 = userService.getAccountByUsername(username2);
+        Assertions.assertEquals(55, account.getBalance());
+        Assertions.assertEquals(45, account2.getBalance());
+        Transaction transaction = transactionService.findByAccount(account).get(1);
         Assertions.assertEquals(-10, transaction.getAmount());
-        accountService.undoTransaction(user.getAccount(), transaction.getId());
-        Assertions.assertEquals(65, userService.getAccountByUsername(user.getUsername()).getBalance());
-        Account account2 = userService.getAccountByUsername(user2.getUsername());
+        accountService.undoTransaction(username, transaction.getId());
+        Assertions.assertEquals(65, userService.getAccountByUsername(username).getBalance());
+        account2 = userService.getAccountByUsername(username2);
         Assertions.assertEquals(35, account2.getBalance());
-        transaction = transactionService.findByAccount(user2.getAccount()).get(0);
+        transaction = transactionService.findByAccount(account2).get(0);
         Assertions.assertEquals(15, transaction.getAmount());
-        accountService.undoTransaction(account2, transaction.getId());
-        Assertions.assertEquals(80, userService.getAccountByUsername(user.getUsername()).getBalance());
-        Assertions.assertEquals(20, userService.getAccountByUsername(user2.getUsername()).getBalance());
+        accountService.undoTransaction(account2.getUser().getUsername(), transaction.getId());
+        Assertions.assertEquals(80, userService.getAccountByUsername(username).getBalance());
+        Assertions.assertEquals(20, userService.getAccountByUsername(username2).getBalance());
     }
 
     @Test
@@ -99,10 +104,11 @@ class AccountTest extends AbstractTest {
         int amount = 10_000;
         User user = registerUser();
         User user2 = registerUser("testUser2");
-        accountService.deposit(user.getAccount(), (double) amount);
+        accountService.deposit(user.getUsername(), (double) amount);
+        System.out.println(userService.getAccountByUsername(user.getUsername()).getBalance());
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        executorService.submit(deposit(user.getAccount(), user.getUsername(), amount));
-        executorService.submit(transfer(user.getAccount(), user.getUsername(), user2.getAccount(), amount));
+        executorService.submit(deposit(user.getUsername(), amount));
+        executorService.submit(transfer(user.getUsername(), user2.getUsername(), amount));
         executorService.shutdown();
         executorService.awaitTermination(120, TimeUnit.SECONDS);
         Account account = userService.getAccountByUsername(user.getUsername());

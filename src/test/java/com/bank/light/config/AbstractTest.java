@@ -1,6 +1,5 @@
 package com.bank.light.config;
 
-import com.bank.light.domain.Account;
 import com.bank.light.domain.User;
 import com.bank.light.interfaces.AccountService;
 import com.bank.light.interfaces.TransactionService;
@@ -33,30 +32,30 @@ public abstract class AbstractTest {
         return userService.register(new UserDto(username, "pass", "pass"));
     }
 
-    public Runnable depositAndTransfer(Account account, String username, Account receiver, int amount) {
+    public Runnable depositAndTransfer(String username, String receiverUsername, int amount) {
         return () -> {
-            accountService.deposit(account, (double) amount);
+            accountService.deposit(username, (double) amount);
             System.out.println(username + " deposit");
             for (int i = 1; i <= amount; i++) {
-                accountService.transfer(account, 1.0, receiver);
+                accountService.transfer(username, 1.0, receiverUsername);
                 if (i % 100 == 0) System.out.println(username + " send " + i + "transactions.");
             }
         };
     }
 
-    public Runnable deposit(Account account, String username, int amount) {
+    public Runnable deposit(String username, int amount) {
         return () -> {
             for (int i = 1; i <= amount; i++) {
-                accountService.deposit(account, 1.0);
+                accountService.deposit(username, 1.0);
                 if (i % 100 == 0) System.out.println(username + " deposit " + i);
             }
         };
     }
 
-    public Runnable transfer(Account account, String username, Account receiver, int amount) {
+    public Runnable transfer(String username, String receiverUsername, int amount) {
         return () -> {
             for (int i = 1; i <= amount; i++) {
-                accountService.transfer(account, 1.0, receiver);
+                accountService.transfer(username, 1.0, receiverUsername);
                 if (i % 100 == 0) System.out.println(username + " send " + i + " transactions");
             }
         };

@@ -1,16 +1,15 @@
 package com.bank.light.interfaces;
 
-import com.bank.light.domain.Account;
 import java.util.List;
 
 public interface AccountService {
-    void deposit(Account account, Double amount);
+    void deposit(String username, Double amount);
 
-    void transfer(Account account, Double amount, Account receiver);
+    void transfer(String username, Double amount, String receiverUsername);
 
-    void withdraw(Account account, Double amount);
+    void withdraw(String username, Double amount);
 
-    void undoTransaction(Account account, Long transactionId);
+    void undoTransaction(String username, Long transactionId);
 
     List<String> listAccountNames();
 

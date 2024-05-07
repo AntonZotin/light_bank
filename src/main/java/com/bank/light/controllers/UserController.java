@@ -81,7 +81,7 @@ public class UserController {
     @PostMapping("/deposit")
     public String deposit(@Valid DepositDto depositDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
-            accountService.deposit(userService.getAccountByUsername(principal.getName()), Double.parseDouble(depositDto.getAmount()));
+            accountService.deposit(principal.getName(), Double.parseDouble(depositDto.getAmount()));
             redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Deposit was successfully");
         });
         return "redirect:/balance";
@@ -94,9 +94,7 @@ public class UserController {
                 redirectAttributes.addFlashAttribute("MSG_ERROR", "You can't transfer money to yourself.");
             } else {
                 try {
-                    final Account account = userService.getAccountByUsername(principal.getName());
-                    final Account receiver = userService.getAccountByUsername(transferDto.getUsername());
-                    accountService.transfer(account, Double.parseDouble(transferDto.getAmount()), receiver);
+                    accountService.transfer(principal.getName(), Double.parseDouble(transferDto.getAmount()), transferDto.getUsername());
                     redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Transfer was successfully");
                 } catch (InsufficientFundsException | UserNotFoundException e) {
                     redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
@@ -110,7 +108,7 @@ public class UserController {
     public String withdraw(@Valid DepositDto depositDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
             try {
-                accountService.withdraw(userService.getAccountByUsername(principal.getName()), Double.parseDouble(depositDto.getAmount()));
+                accountService.withdraw(principal.getName(), Double.parseDouble(depositDto.getAmount()));
                 redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Withdraw was successfully");
             } catch (InsufficientFundsException e) {
                 redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
@@ -123,7 +121,7 @@ public class UserController {
     public String undoTransaction(@Valid UndoDto undoDto, BindingResult result, Principal principal, RedirectAttributes redirectAttributes) {
         checkErrors(result, redirectAttributes, () -> {
             try {
-                accountService.undoTransaction(userService.getAccountByUsername(principal.getName()), undoDto.getTransactionId());
+                accountService.undoTransaction(principal.getName(), undoDto.getTransactionId());
                 redirectAttributes.addFlashAttribute("MSG_SUCCESS", "Transaction undo successfully");
             } catch (TransactionsNotConsistentException | TransactionsNotFoundException e) {
                 redirectAttributes.addFlashAttribute("MSG_ERROR", e.getMessage());
